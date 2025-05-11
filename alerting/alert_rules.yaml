@@ -1,0 +1,61 @@
+rules:
+  - name: "High CPU Usage"
+    conditions:
+      - field: "metric"
+        operator: "equals"
+        value: "cpu_usage"
+      - field: "value"
+        operator: "greater_than"
+        value: 80
+    actions:
+      - type: "notify"
+        channel: "slack"
+        message: "High CPU usage detected: {{value}}%"
+      - type: "escalate"
+        after: "5m"
+        to: "platform-team"
+
+  - name: "Memory Pressure"
+    conditions:
+      - field: "metric"
+        operator: "equals"
+        value: "memory_usage"
+      - field: "value"
+        operator: "greater_than"
+        value: 90
+    actions:
+      - type: "notify"
+        channel: "slack"
+        message: "Critical memory usage: {{value}}%"
+      - type: "create_incident"
+        severity: "high"
+        title: "Memory Pressure Alert"
+
+  - name: "Service Down"
+    conditions:
+      - field: "status"
+        operator: "equals"
+        value: "down"
+    actions:
+      - type: "notify"
+        channel: "pagerduty"
+        severity: "critical"
+      - type: "create_incident"
+        severity: "critical"
+        title: "Service {{service_name}} is down"
+
+  - name: "Error Rate Spike"
+    conditions:
+      - field: "metric"
+        operator: "equals"
+        value: "error_rate"
+      - field: "value"
+        operator: "greater_than"
+        value: 5
+    actions:
+      - type: "notify"
+        channel: "slack"
+        message: "Error rate spike detected: {{value}}%"
+      - type: "create_incident"
+        severity: "high"
+        title: "Error Rate Spike Alert" 
